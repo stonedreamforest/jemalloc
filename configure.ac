@@ -8,7 +8,7 @@ dnl ============================================================================
 dnl Custom macro definitions.
 
 dnl JE_CONCAT_VVV(r, a, b)
-dnl 
+dnl
 dnl Set $r to the concatenation of $a and $b, with a space separating them iff
 dnl both $a and $b are non-emty.
 AC_DEFUN([JE_CONCAT_VVV],
@@ -20,7 +20,7 @@ fi
 )
 
 dnl JE_APPEND_VS(a, b)
-dnl 
+dnl
 dnl Set $a to the concatenation of $a and b, with a space separating them iff
 dnl both $a and b are non-empty.
 AC_DEFUN([JE_APPEND_VS],
@@ -31,7 +31,7 @@ AC_DEFUN([JE_APPEND_VS],
 CONFIGURE_CFLAGS=
 SPECIFIED_CFLAGS="${CFLAGS}"
 dnl JE_CFLAGS_ADD(cflag)
-dnl 
+dnl
 dnl CFLAGS is the concatenation of CONFIGURE_CFLAGS and SPECIFIED_CFLAGS
 dnl (ignoring EXTRA_CFLAGS, which does not impact configure tests.  This macro
 dnl appends to CONFIGURE_CFLAGS and regenerates CFLAGS.
@@ -57,7 +57,7 @@ JE_CONCAT_VVV(CFLAGS, CONFIGURE_CFLAGS, SPECIFIED_CFLAGS)
 
 dnl JE_CFLAGS_SAVE()
 dnl JE_CFLAGS_RESTORE()
-dnl 
+dnl
 dnl Save/restore CFLAGS.  Nesting is not supported.
 AC_DEFUN([JE_CFLAGS_SAVE],
 SAVED_CONFIGURE_CFLAGS="${CONFIGURE_CFLAGS}"
@@ -91,7 +91,7 @@ JE_CONCAT_VVV(CXXFLAGS, CONFIGURE_CXXFLAGS, SPECIFIED_CXXFLAGS)
 ])
 
 dnl JE_COMPILABLE(label, hcode, mcode, rvar)
-dnl 
+dnl
 dnl Use AC_LINK_IFELSE() rather than AC_COMPILE_IFELSE() so that linker errors
 dnl cause failure.
 AC_DEFUN([JE_COMPILABLE],
@@ -512,18 +512,23 @@ AN_PROGRAM([ar], [AC_PROG_AR])
 AC_DEFUN([AC_PROG_AR], [AC_CHECK_TOOL(AR, ar, :)])
 AC_PROG_AR
 
+AN_MAKEVAR([NM], [AC_PROG_NM])
+AN_PROGRAM([nm], [AC_PROG_NM])
+AC_DEFUN([AC_PROG_NM], [AC_CHECK_TOOL(NM, nm, :)])
+AC_PROG_NM
+
 AC_PROG_AWK
 
 dnl Platform-specific settings.  abi and RPATH can probably be determined
 dnl programmatically, but doing so is error-prone, which makes it generally
 dnl not worth the trouble.
-dnl 
+dnl
 dnl Define cpp macros in CPPFLAGS, rather than doing AC_DEFINE(macro), since the
 dnl definitions need to be seen before any headers are included, which is a pain
 dnl to make happen otherwise.
 default_retain="0"
 maps_coalesce="1"
-DUMP_SYMS="nm -a"
+DUMP_SYMS="${NM} -a"
 SYM_PREFIX=""
 case "${host}" in
   *-*-darwin* | *-*-ios*)
@@ -640,7 +645,13 @@ case "${host}" in
 	  DSO_LDFLAGS="-shared"
 	  link_whole_archive="1"
 	fi
-	DUMP_SYMS="dumpbin /SYMBOLS"
+	case "${host}" in
+	  *-*-cygwin*)
+	    DUMP_SYMS="dumpbin /SYMBOLS"
+	    ;;
+	  *)
+	    ;;
+	esac
 	a="lib"
 	libprefix=""
 	SOREV="${so}"
@@ -1412,7 +1423,7 @@ AC_ARG_WITH([lg_page_sizes],
 
 dnl ============================================================================
 dnl jemalloc configuration.
-dnl 
+dnl
 
 AC_ARG_WITH([version],
   [AS_HELP_STRING([--with-version=<major>.<minor>.<bugfix>-<nrev>-g<gid>],
